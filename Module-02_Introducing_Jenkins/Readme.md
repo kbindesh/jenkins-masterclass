@@ -9,7 +9,7 @@
 - The Jenkins tool is written in Java and so are its plugins.
 - The tool has a simplistic GUI that can be enhanced using specific plugins if required.
 
-## 02. What is `Jenkins` is made of?
+## 02. What `Jenkins` is made of?
 
 - The Jenkins framework mainly contains jobs, builds, parameters, pipelines and plugins. Let's look at them in detail.
 
