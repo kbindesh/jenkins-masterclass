@@ -36,4 +36,4 @@
 - A successful commit on the **feature branch** will go through a **build** and **unit test** phase. If the code passes these phases successfully, it is merged to the integration branch.
 - A commit on the **integration branch** (a merge will create a commit) will go through a build, static code analysis, and integration testing phase. If the code passes these phases successfully, the resultant package is uploaded to Artifactory (binary repository).
 
-### 1.2 The Continuous Integration pipeline
+### 1.2 The Continuous Integration (CI) pipeline

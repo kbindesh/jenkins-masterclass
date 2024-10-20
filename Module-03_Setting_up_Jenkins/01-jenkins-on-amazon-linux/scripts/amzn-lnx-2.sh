@@ -1,3 +1,4 @@
+#!/bin/bash
 yum install -y java-17-amazon-corretto.x86_64
 java --version
 wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo

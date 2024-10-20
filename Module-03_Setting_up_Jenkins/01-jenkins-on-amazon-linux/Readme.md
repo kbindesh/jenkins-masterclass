@@ -1,6 +1,4 @@
-# Installing Jenkins on Windows
-
-- This chapter covers the Jenkins installation process on different environments like Windows, Linux and Docker containers and discusses the hardware/software requirements.
+# Installing Jenkins on Linux (Amazon Linux 2)
 
 ## Step-00: System Requirements
 
@@ -79,12 +77,15 @@ systemctl status jenkins
 jenkins version
 ```
 
-## Step-02: Update Jenkins server (EC2 Instance) security group rule
+s
+
+## Step-02: Update Jenkins server (EC2 Instance) Security group rule
 
 - Navigate to your Jenkins server (EC2 Instance) settings from AWS management console >> select the **Security** tab
 - Click on your security group name >> Select **Inbound Rules** >> **Edit Inbound Rules**
 - Click **Add Rule** button
   - **Type**: Custom TCP
+  - **Port range**: 8080
   - **Source**: Anywhere IPv4
 
 ## Step-03: Access Jenkins server's Dashboard
