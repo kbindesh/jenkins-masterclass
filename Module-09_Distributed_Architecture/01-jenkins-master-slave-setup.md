@@ -6,9 +6,11 @@
 
 ## Step-01: Setup Jenkins Server (controller/master node)
 
+### Step-1.1: Create an EC2 Instance and Configure as Jenkins server
+
 - [Refer this link for step-by-step process](https://github.com/kbindesh/jenkins-masterclass/tree/main/Module-03_Setting_up_Jenkins/01-jenkins-on-amazon-linux)
 
-### Step-1.1: Install required Jenkins Plugins
+### Step-1.2: Install required Jenkins Plugins
 
 - Navigate to Jenkins dashboard >> Manage Jenkins >> Plugins >> Available Plugins
 - Search and Install following plugins:
@@ -190,7 +192,9 @@ service sshd reload
 - Jenkins Dashboard >> Manage Jenkins >> Nodes >> maven_build_server
 - You should see agent added without a warning sign. Also check it in the logs.
 
-## Step-04: Create Jenkins Job to execute it on Agent node
+## Step-04: Configure Global Configuration Setting for Maven and Java
+
+## Step-05: Create Jenkins Job to execute it on Agent node
 
 - Create a new Jenkins job
 
@@ -212,4 +216,4 @@ service sshd reload
       - Maven Version: maven-3.9.8
       - Goals: clean install
 
-## Step-05: Verify the Job execution on Agent node
+## Step-06: Verify the Job execution on Agent node
