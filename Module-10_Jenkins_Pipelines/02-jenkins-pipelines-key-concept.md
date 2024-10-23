@@ -1,5 +1,10 @@
 # Lab: Demonstrating the working of Jenkins Pipeline
 
+## Prerequisites
+
+- **Jenkins Controller** (or Master | EC2 Instance)
+- **Access to GitHub repository** (your java app) from your Jenkins server
+
 ## Step-01: Setup Jenkins server
 
 - Kindly refer this link for steps-by-step process: https://github.com/kbindesh/jenkins-masterclass/tree/main/Module-03_Setting_up_Jenkins/02-Jenkins_on_EC2_Amzn_Linux
@@ -160,5 +165,3 @@ pipeline {
 ## Using Credentials (sensitive info) in Jenkins pipeline
 
 ## Defining post build actions in Pipelines
-
-s
