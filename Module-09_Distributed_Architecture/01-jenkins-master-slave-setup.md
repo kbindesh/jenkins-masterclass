@@ -193,9 +193,23 @@ service sshd reload
 ## Step-04: Create Jenkins Job to execute it on Agent node
 
 - Create a new Jenkins job
+
   - Name: master-slave-demo
   - Type: Freestyle
-  - Git
-    - URL: <your_github_repo_url>
+  - General settings
+    - Restrict where this project can be run: Enable
+    - Label Expression: <name_of_the_agent> (here maven-build-agent)
+  - Source Code Management
+    - Git
+      - Repository URL: <your_github_repo_url>
+      - Credentials: <select_creds_if_private_repo>
+      - Branches to build: <branch_of_github_repo>
+  - Build Triggers
+    - GitHub hook trigger for GITScm polling: Enable
+  - Build Steps
+
+    - Add Build step >> Invoke top-level Maven targets
+      - Maven Version: maven-3.9.8
+      - Goals: clean install
 
 ## Step-05: Verify the Job execution on Agent node
