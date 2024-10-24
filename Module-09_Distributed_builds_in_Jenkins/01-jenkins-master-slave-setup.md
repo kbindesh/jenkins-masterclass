@@ -4,7 +4,7 @@
 
 - Github Repository with maven based java application.</br>
 
-## Step-01: Setup Jenkins Server (Master node)
+## Step-01: Setup Jenkins Server (master node)
 
 ### Step-1.1: Create an EC2 Instance and Configure as Jenkins server
 

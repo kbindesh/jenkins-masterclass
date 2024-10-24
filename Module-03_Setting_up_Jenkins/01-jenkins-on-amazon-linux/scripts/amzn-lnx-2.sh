@@ -7,3 +7,4 @@ yum -y upgrade
 yum install -y jenkins
 systemctl start jenkins
 systemctl enable jenkins
+yum install -y git

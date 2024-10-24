@@ -239,16 +239,6 @@ pipeline {
 
     // Cleanup the jenkins workspace before building an Application
     stages {
-
-        stage('Cleanup Workspace') {
-            steps {
-                cleanWs()
-                sh """
-                echo "Cleaned Up Workspace for ${APP_NAME}"
-                """
-            }
-        }
-
         // Build the application code using Maven
         stage('Code Build') {
             steps {
@@ -277,8 +267,8 @@ git push origin main
 
 ## Step-05: Save GitHub Credentials on Jenkins server (Master)
 
-- **NOTE**: I'm assuming that our GitHub repository is a **Private repository**.
-- Navigate to Jenkins Dashboard >>
+- **NOTE**: Here, I'm assuming that our GitHub repository is a **Private repository**.
+- Navigate to Jenkins Dashboard >> Manage Jenkins >> Credentials >> New Credential
 
 ## Step-xx: Create & Execute Jenkins Job (Pipeline) to build the app on Maven slave node
 
@@ -290,21 +280,59 @@ git push origin main
 
 ### Step-xx: Setup SonarCloud Account
 
-### Step-xx: Save SonarCloud credentials (token) on Jenkins
+- Navigate to https://www.sonarsource.com/products/sonarcloud/ >> click on Try now button >> GitHub
+- If prompted, enter your GitHub credentials to sign-in.
 
-### Step-xx: Install Sonar Scanner Plugin on Jenkins
+### Step-xx: Generate an Authentication token on SonarCloud
+
+- Sign-in to your SonarCloud account >> Click on your user drop-down list (top-right corner) >> My Account
+- Select **Security** tab
+  - **Generate Tokens**: token-for-jenkins >> click on **Generate Token** button.
+  - Copy the generated token and store at save place as we'll need it in our next step.
+
+### Step-xx: Save SonarCloud account token on Jenkins server
+
+- Jenkins Dashboard >> Manage Jenkins >> Credentials >> System >> Global credentials (unrestricted)
+- Click on New Credentials button
+  - Kind: Secret Text
+  - Scope: Global
+  - Secret: <paste_the_sonarqube_token_generated_in_last_step>
+  - ID: sonarcloud-token
+- Click on **Create** button
+
+### Step-xx: Install Sonar Scanner plugin on Jenkins server
+
+- Jenkins Dashboard >> Manage Jenkins >> Plugins
+- Select Available plugins tab >> serach for **SonarQube scanner** >> Select and Install
 
 ### Step-xx: Save SonarCloud account details on Jenkins
 
-### Step-xx: Create a sonar-project.properties file
+- Jenkins Dashboard >> Manage Jenkins >> System.
+- Scroll down all the way to **SonarQube server section** (thanks to sonarqube scanner plugin).
+- Click on **Add SonarQube** button
+  - Name: sonarqube-server
+  - Server URL: https://sonarcloud.io/
+  - **Server Authentication Token**: <select_sonar_token_we_created_earlier>
+- Click **Save** button
 
-### Step-xx: Push the changes to GitHub repo
+### Step-xx: Install SonarQube Scanner on Jenkins server
+
+- Jenkins Dashboard >> Manage Jenkins >> Tools >> Scroll to **SonarQube Scanner** section
+- Click on **Add SonarQube Scanner** button
+  - Name: sonar-scanner
+  - Install Automatically: Enable
+  - Version: <select_lastet_version>
+- Click on **Apply & Save**
+
+### Step-xx: Create a sonar-project.properties file
 
 ### Step-xx: Add SonarCloud stage to Jenkinsfile - for code review
 
 ### Step-xx: Add Unit test stage to Jenkinsfile
 
 ### Step-xx: Add SonarCloud Quality gates to Jenkinsfile
+
+### Step-xx: Push the changes to GitHub repo
 
 ### Step-xx: Check-in the code and execute Jenkins Job
 
