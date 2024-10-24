@@ -1,10 +1,11 @@
-# Setup Jenkins Distributed (Master-Slave) Setup
+# Project-02: Create Continuous Integration Pipeline using GitHub, Jenkins, SonarCloud and JFrog
 
 ## Prerequisites
 
-- Github Repository with maven based java application.</br>
+- An AWS Account
+- GitHub repository with a maven based java application. You may refer to this sample java app: https://github.com/kbindesh/mvn-lab-project/tree/main
 
-## Step-01: Setup Jenkins Server (controller/master node)
+## Step-01: Setup Jenkins Server (Master node)
 
 ### Step-1.1: Create an EC2 Instance and Configure as Jenkins server
 
@@ -17,8 +18,10 @@
   - Maven Integration
   - Maven Invoker
   - GitHub
+  - Pipeline
+  - Pipeline: Stage View
 
-## Step-02: Setup Jenkins Agent (Maven Build Server | slave node)
+## Step-02: Setup Jenkins Agent (Maven Build Server | Slave node)
 
 ### Step-2.1: Provision a Virtual Machine (EC2 Instance)
 
@@ -128,9 +131,9 @@ echo $PATH
 yum install -y git
 ```
 
-## Step-03: Add Maven server as an Agent on Jenkins server (master node)
+## Step-03: Add Maven server as an Agent on Jenkins Master node
 
-### Step-3.1: Create a new user on Maven build server for Jenkins communication
+### Step-3.1: Create a new user on Maven build server (slave machine) for Jenkins communication
 
 - Connect to your Maven server (ec2 instance) over SSH.
 
@@ -171,10 +174,10 @@ PasswordAuthentication yes
 service sshd reload
 ```
 
-### Step-3.2: Add `Maven server` as new node on `Jenkins server`
+### Step-3.2: Add `Maven server` as new node on `Jenkins Master node`
 
-- Open Jenkins server's Dashboard >> Manage Nodes and Cloud >> New Node
-- Node Name: maven_build_server
+- Open Jenkins Dashboard >> Nodes >> New Node
+- Node Name: maven-build-server
 - Permanent Agent: Enable
 - `# of executors`: 5
 - Remote Root Directory: /home/jenkins
@@ -182,7 +185,7 @@ service sshd reload
   - Host: <private_ip_of_the_maven_server>
   - Credentials >> Add
     - Username: jenkins
-    - Password: <your_jenkins_user_passwd>
+    - Password: <jenkins_user_passwd_you_configured_in_prev_step>
     - ID: jenkins
   - Select the created credentials from the dropdown list.
 - Host key verification strategy: Non verifying verification strategy
@@ -192,28 +195,129 @@ service sshd reload
 - Jenkins Dashboard >> Manage Jenkins >> Nodes >> maven_build_server
 - You should see agent added without a warning sign. Also check it in the logs.
 
-## Step-04: Configure Global Configuration Setting for Maven and Java
+## Step-04: Configure Maven and Java installation path on Jenkins master
 
-## Step-05: Create Jenkins Job to execute it on Agent node
+- Navigate to Jenkins server dashboard >> Manage Jenkins >> Tools
 
-- Create a new Jenkins job
+- **JDK**
 
-  - Name: master-slave-demo
-  - Type: Freestyle
-  - General settings
-    - Restrict where this project can be run: Enable
-    - Label Expression: <name_of_the_agent> (here maven-build-agent)
-  - Source Code Management
-    - Git
-      - Repository URL: <your_github_repo_url>
-      - Credentials: <select_creds_if_private_repo>
-      - Branches to build: <branch_of_github_repo>
-  - Build Triggers
-    - GitHub hook trigger for GITScm polling: Enable
-  - Build Steps
+  - Name: Java-17
+  - JAVA_HOME: /usr/lib/jvm/java-17-amazon-corretto.x86_64
 
-    - Add Build step >> Invoke top-level Maven targets
-      - Maven Version: maven-3.9.8
-      - Goals: clean install
+- **Maven** - location of maven installation on Maven slave machine (not on Jenkins master node)
+  - Name: Maven-3.9.8
+  - MAVEN_HOME: /opt/apache-maven-3.9.8
 
-## Step-06: Verify the Job execution on Agent node
+## Step-05: Develop Jenkinsfile with build stages
+
+### Step-5.1: Create a Jenkinsfile
+
+- Launch any IDE (Visual Studio Code) on your system and open your maven project folder into it.
+
+- Create a new file as **Jenkinsfile** and add the following code to it:
+
+```
+pipeline {
+
+    // The agent name must match with the jenkins node name (Manage jenkins -> Nodes)
+    agent {
+        node {
+            label 'maven-build-server'
+        }
+    }
+
+    // The tool name must match with the jenkins tools (global configuration) variable names
+    tools {
+        maven 'Maven-3.9.8'
+    }
+
+    // Define environment variables
+    environment {
+        APP_NAME = "BINDESH_APP"
+        APP_ENV  = "PRODUCTION"
+    }
+
+    // Cleanup the jenkins workspace before building an Application
+    stages {
+
+        stage('Cleanup Workspace') {
+            steps {
+                cleanWs()
+                sh """
+                echo "Cleaned Up Workspace for ${APP_NAME}"
+                """
+            }
+        }
+
+        // Build the application code using Maven
+        stage('Code Build') {
+            steps {
+                 sh 'mvn install -Dmaven.test.skip=true'
+            }
+        }
+    }
+}
+```
+
+### Step-4.2: Push the Jenkinsfile into GitHub repository
+
+```
+# Stage the changes
+git add .
+
+# Commit the changes
+git commit -m "Created Jenkinsfile with build stages"
+
+// To check if the origin is pointing to the correct github repo
+git remote -v
+
+// Push the Jenkinsfile to remote github repo
+git push origin main
+```
+
+## Step-05: Save GitHub Credentials on Jenkins server (Master)
+
+- **NOTE**: I'm assuming that our GitHub repository is a **Private repository**.
+- Navigate to Jenkins Dashboard >>
+
+## Step-xx: Create & Execute Jenkins Job (Pipeline) to build the app on Maven slave node
+
+## Step-xx: Verify the Job execution on Agent node
+
+## Step-xx: Setup Github Webhook
+
+## Step-xx: SonarCloud integration with Jenkins
+
+### Step-xx: Setup SonarCloud Account
+
+### Step-xx: Save SonarCloud credentials (token) on Jenkins
+
+### Step-xx: Install Sonar Scanner Plugin on Jenkins
+
+### Step-xx: Save SonarCloud account details on Jenkins
+
+### Step-xx: Create a sonar-project.properties file
+
+### Step-xx: Push the changes to GitHub repo
+
+### Step-xx: Add SonarCloud stage to Jenkinsfile - for code review
+
+### Step-xx: Add Unit test stage to Jenkinsfile
+
+### Step-xx: Add SonarCloud Quality gates to Jenkinsfile
+
+### Step-xx: Check-in the code and execute Jenkins Job
+
+### Step-xx: Verify the results
+
+## Step-xx: JFrog integration with Jenkins
+
+### Step-xx: Setup JFrog Account
+
+### Step-xx: Add `Artifactory stage` to Jenkinsfile
+
+### Step-xx: Add a stage in Jenkinsfile to publish build artifacts (\*.jar) to JFrog Artifactory
+
+### Step-xx: Check-in the code and execute Jenkins Job
+
+### Step-xx: Verify the results
