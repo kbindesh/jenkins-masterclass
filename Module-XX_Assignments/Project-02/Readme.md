@@ -3,7 +3,7 @@
 ## Prerequisites
 
 - An AWS Account
-- GitHub repository with a maven based java application. You may refer to this sample java app: https://github.com/kbindesh/mvn-lab-project/tree/main
+- GitHub repository with a maven based java application. You may refer to this repo for sample java app: https://github.com/kbindesh/mvn-lab-project/tree/main
 
 ## Step-01: Setup Jenkins Server (Master node)
 
@@ -133,7 +133,7 @@ yum install -y git
 
 ## Step-03: Add Maven server as an Agent on Jenkins Master node
 
-### Step-3.1: Create a new user on Maven build server (slave machine) for Jenkins communication
+### Step-3.1: Create a New user on Maven build server (slave) for Jenkins communication
 
 - Connect to your Maven server (ec2 instance) over SSH.
 
@@ -174,7 +174,7 @@ PasswordAuthentication yes
 service sshd reload
 ```
 
-### Step-3.2: Add `Maven server` as new node on `Jenkins Master node`
+### Step-3.2: Add `Maven server` as an Agent (slave) on Jenkins server
 
 - Open Jenkins Dashboard >> Nodes >> New Node
 - Node Name: maven-build-server
@@ -193,7 +193,7 @@ service sshd reload
 ### Step-3.3: Verify the connection with Maven build agent
 
 - Jenkins Dashboard >> Manage Jenkins >> Nodes >> maven_build_server
-- You should see agent added without a warning sign. Also check it in the logs.
+- You should see agent added without a warning sign. Also check it in the node logs.
 
 ## Step-04: Configure Maven and Java installation path on Jenkins master
 
@@ -249,7 +249,7 @@ pipeline {
 }
 ```
 
-### Step-4.2: Push the Jenkinsfile into GitHub repository
+### Step-5.2: Push the Jenkinsfile into GitHub repository
 
 ```
 # Stage the changes
@@ -265,32 +265,52 @@ git remote -v
 git push origin main
 ```
 
-## Step-05: Save GitHub Credentials on Jenkins server (Master)
+## Step-06: Save GitHub Credentials on Jenkins server (Master)
 
 - **NOTE**: Here, I'm assuming that our GitHub repository is a **Private repository**.
-- Navigate to Jenkins Dashboard >> Manage Jenkins >> Credentials >> New Credential
+- Navigate to Jenkins Dashboard >> Manage Jenkins >> Credentials >> System >> Global Credentials >> New Credential
+  - Kind: Username and Password
+  - Username: <your_github_account_username>
+  - Password: <your_github_account_password>
+  - ID: github-creds
 
-## Step-xx: Create & Execute Jenkins Job (Pipeline) to build the app on Maven slave node
+## Step-07: Create & Execute Jenkins Job (Pipeline) to build the app on Maven slave node
 
-## Step-xx: Verify the Job execution on Agent node
+- Jenkins Dashboard >> New Item
+  - Job type: Pipeline
+  - Description: This jenkins pipeline job is responsible for building, reviewing publishing maven(java) app.
+  -
 
-## Step-xx: Setup Github Webhook
+## Step-08: Verify the Job execution on Maven Agent (slave) node
 
-## Step-xx: SonarCloud integration with Jenkins
+- Connect to your maven agent EC2 instance over SSH.
+- List the jenkins workspace directory's target directory and you should see the build artifact in form of \*.jar file.
 
-### Step-xx: Setup SonarCloud Account
+## Step-09: Setup `Github Webhook` for Jenkins server
+
+- Navigate to your GitHub Account >> Select your repository which has the application source code >> Select **Setting** tab >> **Webhooks** >> Add Webhook
+  - Payload URL: http://<your_jenkins_server_public_ip>:8080/github-webhook/
+  - Content Type: application/json
+  - SSL Verification: Enable SSL Verification
+  - Which events would you like to trigger this webhook?: Just the push event
+  - Active: Enable
+  - Click **Add Webhook** button
+
+## Step-10: `SonarCloud` integration with Jenkins
+
+### Step-10.1: Setup SonarCloud Account
 
 - Navigate to https://www.sonarsource.com/products/sonarcloud/ >> click on Try now button >> GitHub
 - If prompted, enter your GitHub credentials to sign-in.
 
-### Step-xx: Generate an Authentication token on SonarCloud
+### Step-10.2: Generate an Authentication token on SonarCloud
 
 - Sign-in to your SonarCloud account >> Click on your user drop-down list (top-right corner) >> My Account
 - Select **Security** tab
   - **Generate Tokens**: token-for-jenkins >> click on **Generate Token** button.
   - Copy the generated token and store at save place as we'll need it in our next step.
 
-### Step-xx: Save SonarCloud account token on Jenkins server
+### Step-10.3: Save SonarCloud account token on Jenkins server
 
 - Jenkins Dashboard >> Manage Jenkins >> Credentials >> System >> Global credentials (unrestricted)
 - Click on New Credentials button
@@ -300,52 +320,246 @@ git push origin main
   - ID: sonarcloud-token
 - Click on **Create** button
 
-### Step-xx: Install Sonar Scanner plugin on Jenkins server
+### Step-10.4: Install Sonar Scanner plugin on Jenkins server
 
 - Jenkins Dashboard >> Manage Jenkins >> Plugins
 - Select Available plugins tab >> serach for **SonarQube scanner** >> Select and Install
 
-### Step-xx: Save SonarCloud account details on Jenkins
+### Step-10.5: Save SonarCloud account details on Jenkins
 
-- Jenkins Dashboard >> Manage Jenkins >> System.
+- Jenkins Dashboard >> Manage Jenkins >> **System**.
 - Scroll down all the way to **SonarQube server section** (thanks to sonarqube scanner plugin).
 - Click on **Add SonarQube** button
   - Name: sonarqube-server
-  - Server URL: https://sonarcloud.io/
+  - Server URL: https://sonarcloud.io
   - **Server Authentication Token**: <select_sonar_token_we_created_earlier>
 - Click **Save** button
 
-### Step-xx: Install SonarQube Scanner on Jenkins server
+### Step-10.6: Install `SonarQube Scanner` on Jenkins server
 
-- Jenkins Dashboard >> Manage Jenkins >> Tools >> Scroll to **SonarQube Scanner** section
+- Jenkins Dashboard >> Manage Jenkins >> **Tools** >> Scroll to **SonarQube Scanner** section
 - Click on **Add SonarQube Scanner** button
   - Name: sonar-scanner
   - Install Automatically: Enable
   - Version: <select_lastet_version>
 - Click on **Apply & Save**
 
-### Step-xx: Create a sonar-project.properties file
+### Step-10.7: Create SonarCloud Organization & Project
 
-### Step-xx: Add SonarCloud stage to Jenkinsfile - for code review
+- Sign-in to SonarCloud account >> Click on "+" button (top-right corner) >> Select **Create new organization**
 
-### Step-xx: Add Unit test stage to Jenkinsfile
+![create-organization](./images/createsonarorg.png)
 
-### Step-xx: Add SonarCloud Quality gates to Jenkinsfile
+- Select **Free plan** >> Click on **Create Organization** button.
+- You will land-up on Projects tab. Click on **Analyze a new project** button
+  ![analyze-sonarprj](./images/analyzeproject.png)
 
-### Step-xx: Push the changes to GitHub repo
+- Now, enter the requested project details:
 
-### Step-xx: Check-in the code and execute Jenkins Job
+  - Organization: bin-sonarorg
+  - Display Name: bin-sonarproject
+  - Project Key: <leave_it_to_default>
+  - Project visibility: Public
 
-### Step-xx: Verify the results
+- ![analyze-sonarprj](./images/analyzeproject.png)
 
-## Step-xx: JFrog integration with Jenkins
+- Click Next button >> it will take you to **Set up project for Clean as You Code** page.
 
-### Step-xx: Setup JFrog Account
+  - The new code for this project will be based on: Previous version
+  - Click **Create project** button
 
-### Step-xx: Add `Artifactory stage` to Jenkinsfile
+- **INFO**: You will project details in the **Information** section of your SonarCloud project.
 
-### Step-xx: Add a stage in Jenkinsfile to publish build artifacts (\*.jar) to JFrog Artifactory
+### Step-10.8: Create a sonar-project.properties file
 
-### Step-xx: Check-in the code and execute Jenkins Job
+- Move the control to your local system >> Visual Studio Code >> Open your Maven (java) project >> Create a new file **sonar-project.properties**
 
-### Step-xx: Verify the results
+```
+sonar.verbose=true
+sonar.organization=bin-sonarorg
+sonar.projectKey=bin-sonarorg_sonar-project
+sonar.projectName=bin-sonarproject
+sonar.language=java
+sonar.sourceEncoding=UTF-8
+sonar.sources=.
+sonar.java.binaries=target/classes
+sonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+```
+
+### Step-10.9: Add SonarCloud stage to Jenkinsfile - for code review
+
+- Reference: https://docs.sonarsource.com/sonarqube/9.7/analyzing-source-code/scanners/jenkins-extension-sonarqube/#maven-or-gradle
+
+- Add the following stage to the Jenkinsfile:
+
+```
+stage('SonarQube Analysis') {
+  environment {
+    // Tool name must match with Jenkins Tools for Sonar Scanner - Manage Jenkins >> Tools
+    scannerHome = tool 'sonar-scanner'
+  }
+  steps {
+    // Env value must match with the Sonar Server Name - Manage Jenkins >> System
+    withSonarQubeEnv('sonarqube-server') {
+      sh "${scannerHome}/bin/sonar-scanner"
+    }
+  }
+}
+```
+
+### Step-10.10: Add Unit test stage to Jenkinsfile
+
+- Add the following stage to the Jenkinsfile:
+
+```
+stage('Unit Testing Stage') {
+  steps {
+    sh 'mvn surefire-report:report'
+  }
+}
+
+```
+
+### Step-10.11: Add `SonarCloud Quality Gate stage` to Jenkinsfile
+
+```
+stage('Quality Gate'){
+  steps {
+    script {
+      timeout(time: 1, unit: 'HOURS') { // In case something goes wrong, pipeline will be killed after a timeout
+      def qg = waitForQualityGate() // Reuse taskId previously collected by withSonarQubeEnv
+      if (qg.status != 'OK') {
+        error "Pipeline aborted due to quality gate failure: ${qg.status}"
+      }
+    }
+  }
+}
+```
+
+### Step-10.12: Push the Jenkinsfile changes to GitHub repo
+
+```
+# Stage the changes
+git add .
+
+# Commit the changes
+git commit -m "SonarCloud stage updates"
+
+// To check if the origin is pointing to the correct github repo
+git remote -v
+
+// Push the Jenkinsfile to remote github repo
+git push origin main
+```
+
+### Step-10.13: Verify the results both on Jenkins Server and SonarCloud
+
+### Step-10.14: (Optional) Update the SonarCloud Quality gate if required
+
+- SonarCloud >> Click User dropdown list (top-right corner) >> My Organizations >> Select your SonarCloud Organization
+
+- Click Create button
+  - **Name**: BIN-JAVA-QG
+  - Remove all the existing conditions and add following conditions:
+    - **Bugs** is greater than **50**
+    - **Code Smells** is greater than **50**
+
+## Step-11: `JFrog` integration with Jenkins
+
+### Step-11.1: Setup JFrog Account
+
+- Launch browser and navigate to https://jfrog.com/ >> Products >> JFrog Artifactory >> Start Free
+- If you have a google account, click on Google button and enter the credentials to login >> Continue.
+- After login, it will take you to your JFrog Account's **Get Started** page >> Click on **Start Trial** button.
+  - Hostname: binhost
+  - Company:
+  - Hosting preferences: AWS
+  - Cloud Region: N.Virginia
+
+![jfrogcreatehost](./images/jfrogcreatehost.png)
+
+- You will see the confirmation message on the screen saying your "Your JFrog account is ready".
+- Click on Sign-in option >> Enter your google credentials to Sign-in to JFrog account.
+
+### Step-11.2: Create JFrog authentication token
+
+- JFrog Dashboard >> Administration tab >> User Management >> **Access Token**.
+  ![createjfrogtoken](./images/createjfrogtoken.png)
+
+- Click on **Generate Token** button.
+  - Scoped Token: Enable
+  - Description: Token for Jenkins integration
+  - Token Scope: Admin
+  - Username: <should_be_your_gmail_id> (e.g. bindesh@gmail.com)
+  - Service: All
+  - Expiration Time: 3 days
+  - Click on Generate button.
+
+### Step-11.3: Save the generated JFrog token on Jenkins server
+
+- Jenkins Dashboard >> Manage Jenkins >> Credentials >> System >> Global Credentials >> Add Credentials
+  - Kind: Username and Password
+  - Scope: Global
+  - Username: <jfrog_username>
+  - Password: <jfrog_access_token_generated_in_last_step>
+  - Click on **Create** button
+
+### Step-11.4: Install Artifactory (JFrog) plugin on Jenkins server
+
+- Jenkins Dashboard >> Manage Jenkins >> Plugins >> Available plugins tab >> Search Artifactory >> Install.
+
+### Step-11.5: Add `Artifactory stage` to Jenkinsfile
+
+- Reference: https://jfrog.com/help/r/jfrog-integrations-documentation/working-with-pipeline-jobs-in-jenkins
+
+### Step-11.6: Add a stage to publish build artifacts (\*.jar) to JFrog Artifactory
+
+```
+def registry = 'https://binhost.jfrog.io'
+stage("Jar Publish") {
+  steps {
+    script {
+      echo '<--------------- Started Publishing Jar --------------->'
+        def server = Artifactory.newServer url:registry+"/artifactory" ,  credentialsId:"artifactory_token"
+        def properties = "buildid=${env.BUILD_ID},commitid=${GIT_COMMIT}";
+        def uploadSpec = """{
+            "files": [
+              {
+                "pattern": "jarstaging/(*)",
+                "target": "libs-release-local/{1}",
+                "flat": "false",
+                "props" : "${properties}",
+                "exclusions": [ "*.sha1", "*.md5"]
+              }
+            ]
+        }"""
+        def buildInfo = server.upload(uploadSpec)
+        buildInfo.env.collect()
+        server.publishBuildInfo(buildInfo)
+        echo '<--------------- Jar Published Successfully --------------->'
+    }
+  }
+}
+```
+
+### Step-11.7: Push the updated Jenkinsfile to GitHub and execute Jenkins Job
+
+```
+# Stage the changes
+git add .
+
+# Commit the changes
+git commit -m "Jfrog artifactory stage updates"
+
+// To check if the origin is pointing to the correct github repo
+git remote -v
+
+// Push the Jenkinsfile to remote github repo
+git push origin main
+```
+
+### Step-11.8: Verify the results on Jenkins and JFrog
+
+- On Jenkins server, check the build logs.
+
+- On Jfrog account, click Artifactory >> libs-release-local >> follow your project heirarchy and you will find your artifacts over there.
