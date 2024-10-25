@@ -1,11 +1,20 @@
-# Project-02: Create Continuous Integration Pipeline using GitHub, Jenkins, SonarCloud and JFrog
+# Project-02: Create Continuous Integration Pipeline using Maven, GitHub, Jenkins, SonarCloud and JFrog
+
+## Project Solution Design
+
+- **Cloud**: Amazon Web Services
+- **Maven**: Java application project orchestrator
+- **GitHub**: SCM Tool
+- **Jenkins**: Automation server
+- **SonarCloud**: Static Code Analysis Tool
+- **JFrog Artifactory**: Artifact Management Tool
 
 ## Prerequisites
 
 - An AWS Account
 - GitHub repository with a maven based java application. You may refer to this repo for sample java app: https://github.com/kbindesh/mvn-lab-project/tree/main
 
-## Step-01: Setup Jenkins Server (Master node)
+## Step-01: Setup `Jenkins Server` (Master node)
 
 ### Step-1.1: Create an EC2 Instance and Configure as Jenkins server
 
@@ -21,7 +30,7 @@
   - Pipeline
   - Pipeline: Stage View
 
-## Step-02: Setup Jenkins Agent (Maven Build Server | Slave node)
+## Step-02: Setup `Maven Build Server` (Slave node)
 
 ### Step-2.1: Provision a Virtual Machine (EC2 Instance)
 
@@ -131,7 +140,7 @@ echo $PATH
 yum install -y git
 ```
 
-## Step-03: Add Maven server as an Agent on Jenkins Master node
+## Step-03: Add `Maven server` as slave node on Jenkins server
 
 ### Step-3.1: Create a New user on Maven build server (slave) for Jenkins communication
 
@@ -195,7 +204,7 @@ service sshd reload
 - Jenkins Dashboard >> Manage Jenkins >> Nodes >> maven_build_server
 - You should see agent added without a warning sign. Also check it in the node logs.
 
-## Step-04: Configure Maven and Java installation path on Jenkins master
+## Step-04: Configure `Maven` and `Java` installation path on Jenkins server
 
 - Navigate to Jenkins server dashboard >> Manage Jenkins >> Tools
 
@@ -208,7 +217,7 @@ service sshd reload
   - Name: Maven-3.9.8
   - MAVEN_HOME: /opt/apache-maven-3.9.8
 
-## Step-05: Develop Jenkinsfile with build stages
+## Step-05: Develop `Jenkinsfile` with `build stages`
 
 ### Step-5.1: Create a Jenkinsfile
 
@@ -265,7 +274,7 @@ git remote -v
 git push origin main
 ```
 
-## Step-06: Save GitHub Credentials on Jenkins server (Master)
+## Step-06: Save `GitHub Credentials` on Jenkins server (Master)
 
 - **NOTE**: Here, I'm assuming that our GitHub repository is a **Private repository**.
 - Navigate to Jenkins Dashboard >> Manage Jenkins >> Credentials >> System >> Global Credentials >> New Credential
@@ -276,10 +285,15 @@ git push origin main
 
 ## Step-07: Create & Execute Jenkins Job (Pipeline) to build the app on Maven slave node
 
-- Jenkins Dashboard >> New Item
-  - Job type: Pipeline
-  - Description: This jenkins pipeline job is responsible for building, reviewing publishing maven(java) app.
-  -
+- Jenkins Dashboard >> **New Item**
+
+  - **Job type**: Pipeline
+  - **Description**: This jenkins pipeline job is responsible for building, reviewing publishing maven(java) app.
+  - Pipeline script from Git SCM
+  - Name: Jenkinsfile
+  - Repository URL: <your_github_repo_url>
+  - Credentials: select **github-creds** (we created in the preceding step)
+  - Branch: main
 
 ## Step-08: Verify the Job execution on Maven Agent (slave) node
 
