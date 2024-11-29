@@ -1,4 +1,4 @@
-# Project-02: Create Continuous Integration Pipeline using Maven, GitHub, Jenkins, SonarCloud and JFrog
+# Project-02: Continuous Integration (CI) Pipeline for Java App using Maven, GitHub, Jenkins, SonarCloud and JFrog
 
 ## Project Solution Design
 
